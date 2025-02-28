@@ -1,101 +1,139 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Send, Frown, Smile, Meh, Heart, Angry, ThumbsUp } from "lucide-react"
+
+export default function EmotionAnalyzer() {
+  const [text, setText] = useState("")
+  const [emotion, setEmotion] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const analyzeEmotion = async () => {
+    if (!text.trim()) return
+
+    setLoading(true)
+    setEmotion(null)
+
+    try {
+      const response = await fetch("/api/analyzeEmotion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      })
+
+      const data = await response.json()
+      setEmotion(data.emotion)
+    } catch (error) {
+      setEmotion("Error analyzing emotion.")
+    }
+
+    setLoading(false)
+  }
+
+  const getEmotionIcon = (emotion) => {
+    switch (emotion?.toLowerCase()) {
+      case "happy":
+      case "joy":
+        return <Smile className="h-6 w-6 text-yellow-500" />;
+      case "sad":
+      case "sadness":
+        return <Frown className="h-6 w-6 text-blue-500" />;
+      case "angry":
+      case "anger":
+        return <Angry className="h-6 w-6 text-red-500" />;
+      case "love":
+        return <Heart className="h-6 w-6 text-pink-500" />;
+      case "neutral":
+        return <Meh className="h-6 w-6 text-gray-500" />;
+      case "positive":
+        return <ThumbsUp className="h-6 w-6 text-green-500" />;
+      case "sarcasm":
+        return <Meh className="h-6 w-6 text-purple-500" />; // Add a new color for sarcasm
+      default:
+        return <Meh className="h-6 w-6 text-gray-500" />;
+    }
+  };
+  
+  const getEmotionColor = (emotion) => {
+    switch (emotion?.toLowerCase()) {
+      case "happy":
+      case "joy":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "sad":
+      case "sadness":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "angry":
+      case "anger":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "love":
+        return "bg-pink-100 text-pink-800 border-pink-200";
+      case "neutral":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "positive":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "sarcasm":
+        return "bg-purple-100 text-purple-800 border-purple-200"; // Unique color for sarcasm
+      case "error analyzing emotion.":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+  
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-4">
+      <Card className="w-full max-w-md shadow-lg border-slate-200">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-slate-800">Emotion Analyzer</CardTitle>
+          <CardDescription>Enter text to analyze the emotional tone</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Textarea
+            placeholder="How are you feeling today? Type your thoughts here..."
+            className="min-h-[120px] resize-none focus:ring-2 focus:ring-primary/50"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {emotion && (
+            <div
+              className={`mt-6 p-4 rounded-lg border ${getEmotionColor(emotion)} transition-all duration-300 ease-in-out`}
+            >
+              <div className="flex items-center gap-3">
+                {getEmotionIcon(emotion)}
+                <div>
+                  <p className="text-sm font-medium">Detected Emotion</p>
+                  <p className="text-lg font-bold capitalize">{emotion}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-between items-center">
+          <Badge variant="outline" className="text-xs text-slate-500">
+            AI-Powered Analysis
+          </Badge>
+          <Button onClick={analyzeEmotion} disabled={loading || !text.trim()} className="gap-2">
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Analyze
+              </>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
-  );
+  )
 }
+
