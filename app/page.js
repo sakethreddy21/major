@@ -115,9 +115,6 @@ export default function EmotionAnalyzer() {
           )}
         </CardContent>
         <CardFooter className="flex justify-between items-center">
-          <Badge variant="outline" className="text-xs text-slate-500">
-            AI-Powered Analysis
-          </Badge>
           <Button onClick={analyzeEmotion} disabled={loading || !text.trim()} className="gap-2">
             {loading ? (
               <>
